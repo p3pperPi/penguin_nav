@@ -1,5 +1,5 @@
 <launch>
-  <include file="$(find-pkg-share nav2_bringup)/launch/navigation_launch.py">
+  <include file="$(find-pkg-share penguin_nav)/launch/navigation_launch.py">
     <arg name="use_sim_time" value="True" />
     <arg name="params_file" value="$(find-pkg-share penguin_nav)/config/nav2_params.yaml" />
   </include>
