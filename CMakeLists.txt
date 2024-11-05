@@ -10,6 +10,8 @@ ament_auto_find_build_dependencies()
 
 ament_python_install_package(${PROJECT_NAME})
 
+ament_auto_add_executable(pose_to_tf src/pose_to_tf.cpp)
+
 install(PROGRAMS
   penguin_nav/follow_path.py
   DESTINATION lib/${PROJECT_NAME})
@@ -21,6 +23,5 @@ install(DIRECTORY launch
 install(DIRECTORY config
   DESTINATION share/${PROJECT_NAME}
 )
-
 
 ament_auto_package()
