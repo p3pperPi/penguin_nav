@@ -4,11 +4,15 @@ Navigation 2 を使用した経路計画行うROS 2パッケージです。
 
 ## 概要
 
-`penguin_nav` は Navigation 2 を使用して経路計画を行うROS 2パッケージです。Navigation 2が提供する機能のうち、自己位置推定以降の経路計画のみを使用しています。また、ウェイポイントをNavigation 2 に渡すためのスクリプトも含みます。
+`penguin_nav` は Navigation 2 を使用して経路計画を行うROS 2パッケージです。以下の要素で構成されています。
 
-経路計画は `nav2_bringup` パッケージの `localization_launch.py` をベースに collision_monitor による衝突回避を追加しています。
-
-ウェイポイント設定スクリプトは、XY座標を読み込み `goThroughPoses` API を通して経路を渡しています。Yaw 角は、`i` -> `i+1` のベクトルから計算しています。
+- Navigation 2 の経路計画の利用
+    - `nav2_bringup` パッケージの `navigation_launch.py` をベースに、 `collision_monitor` による衝突回避を追加しています。
+- Pose を TF に変換する機能
+    - 自己位置推定が TF ではなく Pose を出す場合に対応するためです。
+- ウェイポイントを設定するスクリプト
+    - XY座標を読み込み `goThroughPoses` API を通して経路を渡しています。
+    - Yaw 角は、`i` -> `i+1` のベクトルから計算しています。
 
 ## インストール
 
@@ -37,7 +41,7 @@ Navigation 及びウェイポイント設定スクリプトを起動します。
 ```shell
 source install/setup.sh
 
-# Navigation
+# Navigation + pose_to_tf
 ros2 launch penguin_nav nav.launch.xml
 ```
 
@@ -52,11 +56,19 @@ ros2 run penguin_nav follow_path.py -- <path/to/waypoints.csv>
 
 ## パラメータ
 
-### Navigation 2
+### nav.launch.xml
 
-[config/nav2_params.yaml](./config//nav2_params.yaml) が Navigation 2 のパラメータです。各設定は [Configuration Guide](https://docs.nav2.org/configuration/index.html) に従います。
+以下は `pose_to_tf` のパラメータです。launchファイルに直接ハードコーディングされていることにご注意ください。
 
-### ウェイポイント設定
+| パラメータ名 | 型 | 説明 | デフォルト値 |
+|:-|:-:|:-|:-|
+| `child_frame_id` | `string` | Pose を TF に変換する際の子フレームID。親フレームは Pose の Header を継承します | `base_link` |
+
+[config/nav2_params.yaml](./config/nav2_params.yaml) が Navigation 2 のパラメータです。各設定は [Configuration Guide](https://docs.nav2.org/configuration/index.html) に従います。
+
+
+
+### follow_path.py
 
 [penguin_nav/follow_path.py](./penguin_nav/follow_path.py) に座標の列名がハードコーディングされているため、必要に応じて修正してください。
 
@@ -64,7 +76,7 @@ ros2 run penguin_nav follow_path.py -- <path/to/waypoints.csv>
 
 - 入力:
     - `/scan` (`sensor_msgs/msg/LaserScan`) - 2D LiDAR 形式の点群データを受け取ります。Glocal costmap、Local costmap、及び collision monitor に使用されます。
-    - `/tf` - `map` --> `base_link` が必要になります。
+    - `/pcl_pose` (`geometry_msgs/msg/PoseWithCovarianceStamped`) - ロボットの自己位置を受け取ります。
 - 出力:
     - `/cmd_vel` (`geometry_msgs/msg/Twist`) - 制御コマンドです。
 
@@ -73,4 +85,4 @@ ros2 run penguin_nav follow_path.py -- <path/to/waypoints.csv>
 
 ### Quick fix and DDS issue with Nav2
 
-DDSの問題により上手く動作しないかもしれない。その場合は[こちら](https://roboticsbackend.com/ros2-nav2-tutorial/#Quick_fix_and_DDS_issue_with_Nav2) を参考に DDS を cyclonedds に変更してください。
+DDSの問題により上手く動作しないかもしれないです。その場合は[こちら](https://roboticsbackend.com/ros2-nav2-tutorial/#Quick_fix_and_DDS_issue_with_Nav2) を参考に DDS を cyclonedds に変更してください。
