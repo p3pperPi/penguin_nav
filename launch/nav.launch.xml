@@ -1,4 +1,8 @@
 <launch>
+  <node pkg="penguin_nav" exec="pose_to_tf" name="pose_to_tf">
+    <remap from="/pose" to="/pcl_pose" />
+    <param name="child_frame_id" value="base_link" />
+  </node>
   <include file="$(find-pkg-share penguin_nav)/launch/navigation_launch.py">
     <arg name="params_file" value="$(find-pkg-share penguin_nav)/config/nav2_params.yaml" />
   </include>
