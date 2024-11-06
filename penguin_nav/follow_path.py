@@ -95,11 +95,13 @@ def main():
             df = pd.read_csv(file)
             poses = df_to_poses(df)
             controller.go_through(poses)
-            val = input(
-                f"Finish {i+1}th file. Press enter to continue. Type 'q' to quit."
-            )
-            if val == "q":
-                break
+            if len(files) > 1:
+                val = input(
+                    f"Finish {i+1}th file. Press enter to continue. Type 'q' to quit."
+                )
+                if val == "q":
+                    break
+
     except KeyboardInterrupt:
         controller.stop()
         raise

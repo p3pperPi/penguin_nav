@@ -11,8 +11,11 @@ Navigation 2 を使用した経路計画行うROS 2パッケージです。
 - Pose を TF に変換する機能
     - 自己位置推定が TF ではなく Pose を出す場合に対応するためです。
 - ウェイポイントを設定するスクリプト
-    - XY座標を読み込み `goThroughPoses` API を通して経路を渡しています。
+    - CSVファイルに書かれた XY座標を読み込み `goThroughPoses` API を通して経路を渡しています。
     - Yaw 角は、`i` -> `i+1` のベクトルから計算しています。
+    - 引数に複数のファイルを渡すことで複数のウェイポイントを順番に実行できます。
+        - 1つのファイルが終了する毎に停止し、継続するか打ち切るかの入力待ちをします。
+    - Ctrl+C でナビゲーションタスクをキャンセルします。
 
 ## インストール
 
@@ -51,7 +54,16 @@ ros2 launch penguin_nav nav.launch.xml
 source install/setup.sh
 
 # ウェイポイント設定スクリプト
-ros2 run penguin_nav follow_path.py -- <path/to/waypoints.csv>
+ros2 run penguin_nav follow_path.py -- <path/to/waypoints.csv> [<path/to/waypoints2.csv> ...]
+```
+
+```shell
+# ワイルドカードにより一括で渡すこともできる
+$ ls waypoints_list
+waypoints_0001.csv waypoints_0002.csv waypoints_0003.csv
+
+$ ros2 run penguin_nav follow_path.py -- waypoints_list/waypoints_*.csv
+# ros2 ... -- waypoints_list/waypoints_0001.csv waypoints_list/waypoints_0002.csv waypoints_list/waypoints_0003.csv と等価
 ```
 
 ## パラメータ
