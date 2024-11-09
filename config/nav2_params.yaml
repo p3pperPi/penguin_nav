@@ -183,10 +183,10 @@ global_costmap:
       publish_frequency: 1.0
       global_frame: map
       robot_base_frame: base_link
-      width: 200
-      height: 200
-      origin_x: -100.0
-      origin_y: -100.0
+      width: 250
+      height: 250
+      origin_x: -50.0
+      origin_y: -50.0
       use_sim_time: True
       robot_radius: 0.22
       resolution: 0.05
