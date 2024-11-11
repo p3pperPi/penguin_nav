@@ -1,13 +1,15 @@
 <launch>
   <arg name="use_sim_time" default="false" />
-  <arg name="rviz" default="true" />
+  <arg name="visualize" default="true" />
   <arg name="rviz_config" default="$(find-pkg-share penguin_nav)/config/rviz.rviz" />
+  <arg name="plot_config" default="$(find-pkg-share penguin_nav)/config/plotjuggler.xml" />
   <node pkg="tf2_ros" exec="static_transform_publisher" name="base_footprint" args="0 0 0 0 0 0 base_link base_footprint" />
   <include file="$(find-pkg-share penguin_nav)/launch/navigation_launch.py">
     <arg name="params_file" value="$(find-pkg-share penguin_nav)/config/nav2_params.yaml" />
     <arg name="use_sim_time" value="$(var use_sim_time)" />
   </include>
-  <group if="$(var rviz)">
+  <group if="$(var visualize)">
     <node pkg="rviz2" exec="rviz2" args="-d $(var rviz_config)" />
+    <node pkg="plotjuggler" exec="plotjuggler" args="-l $(var plot_config) -n" />
   </group>
 </launch>
