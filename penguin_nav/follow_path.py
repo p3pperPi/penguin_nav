@@ -53,7 +53,6 @@ class PathFollower(BasicNavigator):
         self.last_markers_: List[Marker] = []
 
     def execute_one(self, plan: List[Pose2D]):
-        self.info(f"{plan}")
         header = Header()
         header.frame_id = "map"
         header.stamp = self.get_clock().now().to_msg()
@@ -97,7 +96,6 @@ class PathFollower(BasicNavigator):
 
             markers.append(m)
 
-        self.info(str(len(markers)))
         self.marker_pub_.publish(MarkerArray(markers=markers))
 
 
@@ -157,8 +155,6 @@ def main():
     try:
         for i, (df, name) in enumerate(dfs):
             path_follower.get_logger().info(f"Running {name} ... {i+1}/{len(dfs)}")
-
-            print(df)
 
             poses = df_to_poses(df)
 
