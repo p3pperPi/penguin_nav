@@ -8,13 +8,12 @@ Navigation 2 を使用した経路計画行うROS 2パッケージです。
 
 - Navigation 2 の経路計画の利用
     - `nav2_bringup` パッケージの `navigation_launch.py` をベースに、 `collision_monitor` による衝突回避を追加しています。
-- Pose を TF に変換する機能
-    - 自己位置推定が TF ではなく Pose を出す場合に対応するためです。
 - ウェイポイントを設定するスクリプト
     - CSVファイルに書かれた XY座標を読み込み `goThroughPoses` API を通して経路を渡しています。
     - Yaw 角は、`i` -> `i+1` のベクトルから計算しています。
-    - 引数に複数のファイルを渡すことで複数のウェイポイントを順番に実行できます。
-        - 1つのファイルが終了する毎に停止し、継続するか打ち切るかの入力待ちをします。
+    - ウェイポイントはグルーピングされた点列として表現されます。
+        - 1つのグループでの `goThroughPoses` 実行を繰り返す形になっています。
+        - `goThroughPoses` 終了時に、キー入力待ちするかそのまま継続するかを選択できます。
     - Ctrl+C でナビゲーションタスクをキャンセルします。
 
 ## インストール
@@ -50,6 +49,7 @@ ros2 launch penguin_nav nav.launch.xml
 
 **ターミナル2**
 
+
 ```shell
 source install/setup.sh
 
@@ -66,18 +66,36 @@ $ ros2 run penguin_nav follow_path.py -- waypoints_list/waypoints_*.csv
 # ros2 ... -- waypoints_list/waypoints_0001.csv waypoints_list/waypoints_0002.csv waypoints_list/waypoints_0003.csv と等価
 ```
 
+<details><summary>waypoints.csv の例</summary>
+
+```csv
+x,y,action
+1,0
+2,0
+3,0,stop
+4,0
+5,0
+6,0,continue
+7,0
+8,0
+9,0
+```
+
+ウェイポイントは、action列に文字が入っていたらそこを境界としてグループに分割されます。1つのグループが2点以上持つようにしてください。最後の行のactionが空の場合は暗黙的に `stop` と解釈します。
+
+- `stop` : 一時停止しキー入力待ちする
+- `continue` : キー入力を待たず、次のグループを開始する
+
+</details>
+
+
 ## パラメータ
 
 ### nav.launch.xml
 
-以下は `pose_to_tf` のパラメータです。launchファイルに直接ハードコーディングされていることにご注意ください。
-
-| パラメータ名 | 型 | 説明 | デフォルト値 |
-|:-|:-:|:-|:-|
-| `child_frame_id` | `string` | Pose を TF に変換する際の子フレームID。親フレームは Pose の Header を継承します | `base_link` |
-
 [config/nav2_params.yaml](./config/nav2_params.yaml) が Navigation 2 のパラメータです。各設定は [Configuration Guide](https://docs.nav2.org/configuration/index.html) に従います。
 
+[config/navigate_through_poses_w_replanning_and_recovery.xml](./config/navigate_through_poses_w_replanning_and_recovery.xml) が `GoThroughPoses` が使用する BehaviorTree です。
 
 
 ### follow_path.py
@@ -88,7 +106,7 @@ $ ros2 run penguin_nav follow_path.py -- waypoints_list/waypoints_*.csv
 
 - 入力:
     - `/scan` (`sensor_msgs/msg/LaserScan`) - 2D LiDAR 形式の点群データを受け取ります。Glocal costmap、Local costmap、及び collision monitor に使用されます。
-    - `/pcl_pose` (`geometry_msgs/msg/PoseWithCovarianceStamped`) - ロボットの自己位置を受け取ります。
+    - `/tf`,`/static_tf` - `map` -> `base_link` が必要です。
 - 出力:
     - `/cmd_vel` (`geometry_msgs/msg/Twist`) - 制御コマンドです。
 
