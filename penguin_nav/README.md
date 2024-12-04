@@ -70,7 +70,7 @@ $ ros2 run penguin_nav follow_path.py -- waypoints_list/waypoints_*.csv
 <details><summary>waypoints.csv の例</summary>
 
 ```csv
-x,y,action,yaw_deg,left_torelance,right_torelance
+x,y,action,yaw_deg,left_tolerance,right_tolerance
 1,0,,90
 2,0
 3,0,stop,180,1.0,1.0
@@ -89,8 +89,8 @@ CSVファイルは以下の列を持ちます。x, y 以外は optional です�
 - yaw (optional) : 点のyaw角 (radian, mapフレーム)
 - yaw_deg (optional) : 点のyaw角 (degree, mapフレーム)
 - action (optional) : その点でのアクション（後述）
-- left_torelance (optional) : 点調整時の左側の許容距離
-- right_torelance (optional) : 点調整時の右側の許容距離
+- left_tolerance (optional) : 点調整時の左側の許容距離
+- right_tolerance (optional) : 点調整時の右側の許容距離
 
 省略時は、列自体を省略しても良いですし、特定の行だけ省略しても構いません。
 
@@ -106,7 +106,7 @@ action は以下のいずれかです。
 action は、ファイルの最終行については空白時に stop が挿入されます。
 ウェイポイントは continue あるいは stop で区切ってグルーピングされます。global costmap はこのグループが収まるように調整されるため、costmap が大きすぎないように区切ることを推奨します。
 
-left_torelance 及び right_torelance は、点の位置を調整するための量です。
+left_tolerance 及び right_tolerance は、点の位置を調整するための量です。
 これは、ウェイポイントの点が障害物に埋まった時に、その外側に再配置するためのものです。省略時は 0 となります。
 
 

@@ -9,7 +9,7 @@ import sys
 import math
 import rclpy
 from geometry_msgs.msg import PoseStamped, Pose, PoseWithCovarianceStamped
-from nav2_simple_commander.robot_navigator import BasicNavigator
+from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
 from rcl_interfaces.srv import SetParameters
 from rclpy import Parameter
 from visualization_msgs.msg import MarkerArray, Marker
@@ -90,14 +90,14 @@ class DivideNavigator(BasicNavigator):
         )
 
     def adjust_waypoints(self, plan: Plan):
-        waypoints, left_torelances, right_torelances = plan.to_msg(
+        waypoints, left_tolerances, right_tolerances = plan.to_msg(
             self.make_map_header()
         )
         self._adjust_future = self._adjust_cli.call_async(
             AdjustWaypoints.Request(
                 waypoints=waypoints,
-                left_torelances=left_torelances,
-                right_torelances=right_torelances,
+                left_tolerances=left_tolerances,
+                right_tolerances=right_tolerances,
             )
         )
 
@@ -158,6 +158,21 @@ class DivideNavigator(BasicNavigator):
         self._set_window_future = None
         return ret
 
+    def is_current_navigation_completed(self):
+        ret = self.isTaskComplete()
+        if ret:
+            result = self.getResult()
+            if result == TaskResult.SUCCEEDED:
+                self.info("\033[32mGoal successed\033[0m")
+            elif result == TaskResult.CANCELED:
+                self.info("\033[33mGoal was canceled\033[0m")
+            elif result == TaskResult.FAILED:
+                self.info("\033[31mGoal failed. Proceed to the next plan\033[0m")
+            else:
+                self.info("Goal has an invalid return status")
+
+        return ret
+
     def cancel(self):
         if not self.isTaskComplete():
             self.cancelTask()
@@ -172,7 +187,9 @@ class Controller(Input):
 
     def go_next(self) -> Tuple[bool, bool]:
         """(go_next, keep_running)"""
-        txt = self.input("Please enter to continue. Type 'q' and enter to quit.")
+        txt = self.input(
+            "\033[32mPlease enter to continue. Type 'q' and enter to quit.\033[0m"
+        )
         if txt is None:
             return False, True
         if txt == "q":
@@ -257,7 +274,7 @@ class Mission:
                             adjusted_plan.waypoints, "current_plan", (0.0, 1.0, 1.0)
                         )
 
-                if current_plan and self._nav.isTaskComplete():
+                if current_plan and self._nav.is_current_navigation_completed():
                     should_wait_next = current_plan.should_stop()
                     current_plan = None
                     adjusted_plan = None

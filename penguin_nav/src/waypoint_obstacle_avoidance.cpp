@@ -82,7 +82,7 @@ struct AdjustedPose {
 };
 
 AdjustedPose adjust_lateral(const OccupancyGrid &map, const Pose &pose,
-                            double left_torelance, double right_torelance,
+                            double left_tolerance, double right_tolerance,
                             double step) {
   // Adjust laterally if the pose is occupied.
   // 'modified' will be true if the pose is adjusted. It will be false even if
@@ -99,9 +99,9 @@ AdjustedPose adjust_lateral(const OccupancyGrid &map, const Pose &pose,
   tf2::Vector3 origin;
   into(pose.position, origin);
 
-  for (auto delta = step; delta <= left_torelance || delta <= right_torelance;
+  for (auto delta = step; delta <= left_tolerance || delta <= right_tolerance;
        delta += step) {
-    if (delta <= left_torelance) {
+    if (delta <= left_tolerance) {
       Point p;
       into(origin + left * delta, p);
 
@@ -111,7 +111,7 @@ AdjustedPose adjust_lateral(const OccupancyGrid &map, const Pose &pose,
         break;
       }
     }
-    if (delta <= right_torelance) {
+    if (delta <= right_tolerance) {
       Point p;
       into(origin - left * delta, p);
       if (!is_occupied(map, p)) {
@@ -190,7 +190,7 @@ TEST_CASE("testing adjust_lateral") {
     auto result = adjust_lateral(map, p, 0.9, 0.9, 0.1);
     test(result, {p, false});
   }
-  SUBCASE("not torelance") {
+  SUBCASE("not tolerance") {
     auto p = make_pose(5, 5, 0);
     auto result = adjust_lateral(map, p, 0.0, 0.0, 0.1);
     test(result, {p, false});
@@ -336,11 +336,11 @@ void WaypointObstacleAvoidanceNode::adjust_waypoints_callback(
 
   for (size_t i = 0; i < request->waypoints.size(); i++) {
     const auto &p = request->waypoints[i].pose;
-    const auto left_torelance = request->left_torelances[i];
-    const auto right_torelance = request->right_torelances[i];
+    const auto left_tolerance = request->left_tolerances[i];
+    const auto right_tolerance = request->right_tolerances[i];
 
-    auto ret = adjust_lateral(*global_costmap_, p, left_torelance,
-                              right_torelance, 0.1);
+    auto ret = adjust_lateral(*global_costmap_, p, left_tolerance,
+                              right_tolerance, 0.1);
     if (ret.modified) {
       response->waypoints[i].pose = ret.pose;
       response->modified = true;

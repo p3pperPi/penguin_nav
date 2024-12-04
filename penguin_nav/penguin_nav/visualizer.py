@@ -21,7 +21,7 @@ class Visualizer:
             MarkerArray(
                 markers=[
                     Marker(ns=name, action=Marker.DELETEALL),
-                    Marker(ns=f"{name}_torelance", action=Marker.DELETEALL),
+                    Marker(ns=f"{name}_tolerance", action=Marker.DELETEALL),
                 ]
             )
         )
@@ -58,7 +58,7 @@ class Visualizer:
 
         for i, p in enumerate(wp):
             m = Marker()
-            m.ns = f"{name}_torelance"
+            m.ns = f"{name}_tolerance"
             m.id = i
             m.type = Marker.LINE_STRIP
             m.action = Marker.ADD
