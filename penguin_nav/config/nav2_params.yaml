@@ -74,7 +74,7 @@ controller_server:
       #yaw_goal_tolerance: 0.174 # 10 degrees
       yaw_goal_tolerance: 1.57 # 10 degrees
     FollowPath:
-#      plugin: "dwb_core/DWBLocalPlanner"
+#      plugin: "dwb_core::DWBLocalPlanner"
 #      debug_trajectory_details: True
 #      min_vel_x: 0.0
 #      min_vel_y: 0.0
@@ -115,8 +115,8 @@ controller_server:
 #      RotateToGoal.lookahead_time: -1.0
 
 
-    # MPPI Controller
-#      plugin: "nav2_mppi_controller/MPPIController"
+#    # MPPI Controller
+#      plugin: "nav2_mppi_controller::MPPIController"
 #      time_steps: 56
 #      model_dt: 0.05
 #      batch_size: 2000
